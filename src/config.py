@@ -112,6 +112,7 @@ TIDALSTACK    = 2
 TIDALGHC      = 3
 SUPERCOLLIDER = 4
 SONICPI       = 5
+MERCURY       = 6
 
 langnames = { "foxdot"           : FOXDOT,
               "tidalcycles"      : TIDAL,
@@ -119,6 +120,7 @@ langnames = { "foxdot"           : FOXDOT,
               "tidalcyclesghc"   : TIDALGHC,
               "supercollider"    : SUPERCOLLIDER,
               "sonic-pi"         : SONICPI,
+              "mercury"          : MERCURY,
               "none"             : DUMMY }
 
 langtitles = { "foxdot"           : "FoxDot",
@@ -127,6 +129,7 @@ langtitles = { "foxdot"           : "FoxDot",
                "tidalcyclesstack" : "TidalCycles (stack)",
                "tidalcyclesghc"   : "TidalCycles (ghc)",
                "sonic-pi"         : "Sonic-Pi",
+               "mercury"          : "Mercury",
                "none"             : "No Interpreter" }
 
 def getInterpreter(path):

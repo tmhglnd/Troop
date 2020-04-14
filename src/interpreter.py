@@ -672,6 +672,66 @@ class SonicPiInterpreter(OSCInterpreter):
         return 'osc_send({!r}, {}, "/stop-all-jobs")'.format(cls.host, cls.port)
 
 
+# Osc Interpreter for the Mercury Livecoding Environment
+class MercuryInterpreter(OSCInterpreter):
+    filetype = ".txt"
+    host = 'localhost'
+    port = 4880
+    name = "Mercury"
+
+    def new_osc_message(self, string):
+        # Returns OSC message for Mercury
+        msg = OSC.OSCMessage("/mercury-code")
+
+        # Convert all text to an array of strings per line
+        line = ""
+        code = []
+        for i, char in enumerate(string):
+            if char == "\n" or i == len(string)-1:
+                if char != "\n":
+                    line += char
+                if line != "":
+                    # remove comments (starting with // and optional tabs or whitespace)
+                    if re.search(r"^(\s+)?\/\/(.+)?", line) == None:
+                        # remove extra whitespace or tabs
+                        line = re.sub(r"\s+", ' ', line)
+                        code.append(line)
+                    line = ""
+            else: 
+                line += char
+       
+        # Append code array to message and send
+        msg.append(code)
+        return msg
+
+    @classmethod
+    def find_comment(cls, string):
+        instring, instring_char = False, ""
+        for i, char in enumerate(string):
+            if char in ('"', "'"):
+                if instring:
+                    if char == instring_char:
+                        instring = False
+                        instring_char = ""
+                else:
+                    instring = True
+                    instring_char = char
+            elif char == "//":
+              if not instring:
+                  return [(i, len(string))]
+        return []
+
+    @classmethod
+    def get_block_of_code(cls, text, index):
+        # Returns first and last line as Mercury evaluates the whole code
+        start, end = "1.0", text.index("end")
+        return [int(index.split(".")[0]) for index in (start, end)]
+
+    @classmethod
+    def stop_sound(cls):
+        return OSC.OSCMessage("/mercury-code", "killAll")
+        # return 'osc_send({!r}, {}, "/stop-all-jobs")'.format(cls.host, cls.port)
+
 # Set up ID system
 
 langtypes = { FOXDOT        : FoxDotInterpreter,
@@ -680,6 +740,7 @@ langtypes = { FOXDOT        : FoxDotInterpreter,
               TIDALGHC      : GHCTidalInterpreter,
               SUPERCOLLIDER : SuperColliderInterpreter,
               SONICPI       : SonicPiInterpreter,
+              MERCURY       : MercuryInterpreter,
               DUMMY         : DummyInterpreter }
 
 for lang_id, lang_cls in langtypes.items():
